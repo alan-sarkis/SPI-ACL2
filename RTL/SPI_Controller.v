@@ -1,6 +1,6 @@
 module spi_controller(
     input CLK,
-    input OPERATION,
+    input [1:0] OPERATION,
     input MISO,
     input READY,
     output reg CS,
@@ -23,17 +23,18 @@ always@(posedge CLK)begin
     endcase
 end
 
-///// ADRESSES /////
-wire [7:0] ADDRESS = 8'b01101101;
+//// Addresses ////
+localparam X_REGISTER = 8'h08;
+localparam Y_REGISTER = 8'h09;
+localparam Z_REGISTER = 8'h0A;
+
+///// States /////
+reg [1:0] MODE = 2'b00;
+localparam IDLE = 2'b00, SEND_INSTR = 2'b01, RECIEVE_DATA = 2'b10;
 
 ///// Initiate Slow Clock For SPI /////
 localparam SLOW_CLOCK_DIVIDE = 1221;
 integer SLOW_CLOCK_COUNTER = 0;
-
-///// MODES ////
-reg [1:0] MODE = 2'b00;
-
-localparam IDLE = 2'b00, SEND_INSTR = 2'b01, RECIEVE_DATA = 2'b10;
 
 always@(posedge CLK)begin
     if(MODE == SEND_INSTR || MODE == RECIEVE_DATA)begin
