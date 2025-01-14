@@ -1,6 +1,6 @@
 module spi_controller(
     input CLK,
-    input RW,
+    input OPERATION,
     input MISO,
     input READY,
     output reg CS,
@@ -9,15 +9,17 @@ module spi_controller(
     output reg [7:0] MISO_DATA
 );
 //// Instructions ////
-localparam READ = 1'b0;
-localparam WRITE= 1'b1;
+localparam REG_READ = 2'b00;
+localparam FIFO_READ = 2'b01;
+localparam WRITE= 1'b10;
 
 reg [7:0] INSTRUCTION;
 
 always@(posedge CLK)begin
-    case(RW)
-    READ:   INSTRUCTION <= 8'b00001011;
-    WRITE:  INSTRUCTION <= 8'b00001010;
+    case(OPERATION)
+    REG_READ:  INSTRUCTION <= 8'b00001011;
+    FIFO_READ: INSTRUCTION <= 8'b000001101;
+    WRITE:     INSTRUCTION <= 8'b00001010;
     endcase
 end
 
