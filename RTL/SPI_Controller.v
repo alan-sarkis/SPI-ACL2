@@ -3,11 +3,13 @@ module spi_controller(
     input [2:0] OPERATION, // SWITCH 1,2,3
     input [2:0] ADDRESS_CHOICE, // BUTTON 1,2,3,4
     input MISO, // DATA FROM SLAVE TO MASTER
-    output reg CS, // CHIP SELECT
-    output reg SCLK, // SLOW CLOCK FOR SPI PROTOCOL
-    output reg MOSI, // DATA FROM MASTER TO SLAVE
-    output reg [7:0] MISO_DATA, // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
-    output reg DATA_VALID // TO COMMUNICATE TO 7 SEGMENT THAT THE DATA is READY TO BE DISPLAYED
+
+    output reg CS = 1, // CHIP SELECT
+    output reg SCLK = 0, // SLOW CLOCK FOR SPI PROTOCOL
+    output reg MOSI = 0, // DATA FROM MASTER TO SLAVE
+
+    output reg [7:0] DATA_OUT = 0, // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
+    output reg DATA_VALID  = 0// TO COMMUNICATE TO 7 SEGMENT THAT THE DATA is READY TO BE DISPLAYED
 );
 
 
@@ -69,8 +71,9 @@ always@(posedge CLK)begin // Clock divider to achieve a SCLK of 51.875 kHz
 end
 
 ///////// TX and RX SPI RTL //////////
-wire [15:0] MOSI_DATA = {INSTRUCTION,ADDRESS};
 integer BIT_COUNTER = 0;
+wire [15:0] MOSI_DATA = {INSTRUCTION,ADDRESS};
+reg [7:0] MISO_DATA = 0;
 reg READY = 0;
 
 always@(posedge CLK)begin // To ensure all settings are selected before transactions
@@ -115,6 +118,7 @@ always@(posedge CLK)begin
                     MISO_DATA[BIT_COUNTER] <= MISO;
                     if(BIT_COUNTER == 0)begin
                         DATA_VALID <= 1;
+                        DATA_OUT <= MISO_DATA;
                         if(~READY)begin // If we no longer want to burst read, the device will go to idle
                             STATE <= IDLE;
                         end
