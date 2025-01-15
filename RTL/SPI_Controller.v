@@ -40,7 +40,7 @@ always@(posedge CLK)begin
         X_ADDRESS: ADDRESS <= 8'h08; // BUTTON 1
         Y_ADDRESS: ADDRESS <= 8'h09; // BUTTON 2
         Z_ADDRESS: ADDRESS <= 8'h0A; // BUTTON 3
-        default:   ADDRESS <= ADDRESS // Latch as we need to capture the button value and not reset when unclicked
+        default:   ADDRESS <= ADDRESS; // Latch as we need to capture the button value and not reset when unclicked
     endcase
 end
 
