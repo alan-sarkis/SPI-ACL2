@@ -12,6 +12,7 @@ module spi_controller(
     output reg DATA_VALID  = 0// TO COMMUNICATE TO 7 SEGMENT THAT THE DATA is READY TO BE DISPLAYED
 );
 
+////////////////////// THE FIFO READ AND WRITE COMMANDS ARE NOT DEVELOPED YET ///////////////////////////
 
 //// SPI Instructions ////
 localparam REG_READ = 3'b001;
