@@ -13,7 +13,7 @@ localparam REG_READ = 3'b001;
 localparam FIFO_READ = 3'b010;
 localparam WRITE = 3'b100;
 
-reg [7:0] INSTRUCTION;
+reg [7:0] INSTRUCTION = 0;
 
 always@(posedge CLK)begin
     case(OPERATION)
@@ -27,6 +27,8 @@ end
 localparam X_ADDRESS = 3'b001;
 localparam Y_ADDRESS = 3'b010;
 localparam Z_ADDRESS = 3'b100;
+
+reg [7:0] ADDRESS = 0;
 
 always@(posedge CLK)begin
     case(ADDRESS_CHOICE)
@@ -45,7 +47,8 @@ localparam IDLE = 2'b00, SEND_DATA = 2'b01, RECIEVE_DATA = 2'b10;
 localparam SLOW_CLOCK_DIVIDE = 1221;
 integer SLOW_CLOCK_COUNTER = 0;
 
-always@(posedge CLK)begin
+
+always@(posedge CLK)begin // Clock divider to achieve a SCLK of 51.875 kHz
     if(STATE == SEND_DATA || STATE == RECIEVE_DATA)begin
         SLOW_CLOCK_COUNTER <= SLOW_CLOCK_COUNTER + 1;
         if(SLOW_CLOCK_COUNTER == SLOW_CLOCK_DIVIDE)begin
@@ -62,7 +65,14 @@ end
 //// TX and RX SPI RTL ////
 wire [15:0] MOSI_DATA = {INSTRUCTION,ADDRESS};
 integer i = 0;
+reg READY = 0;
 
+always@(posedge CLK)begin // To ensure all settings are selected before transactions
+    if((OPERATION == (REG_READ || FIFO_READ || WRITE)) && (ADDRESS_CHOICE == (X_ADDRESS || Y_ADDRESS || Z_ADDRESS)))
+        READY <= 1;
+    else
+        READY <= 0;
+end
 always@(posedge CLK)begin
     case(STATE)
     IDLE:
@@ -71,7 +81,7 @@ always@(posedge CLK)begin
             MOSI <= 0;
             MISO_DATA <= 0;
             i <= 15;
-            if(OPERATION == (REG_READ || FIFO_READ || WRITE))begin
+            if(READY)begin
                 STATE <= SEND_DATA;
             end
         end
@@ -94,7 +104,7 @@ always@(posedge CLK)begin
             if((SCLK == 1'b0) && (SLOW_CLOCK_COUNTER == SLOW_CLOCK_DIVIDE))begin // Positive Edge of SCLK FULL(READ ON CLOCK EDGE)
                 i <= i - 1;
                 MISO_DATA[i] <= MISO;
-                if((i == 0) && (OPERATION ~= REG_READ))begin // If we no longer want to burst read, the device will go to idle
+                if((i == 0) && (~READY))begin // If we no longer want to burst read, the device will go to idle
                     STATE <= IDLE;
                 end
                 else if(i == 0)begin // The loop will continue until there is no need to burst read
