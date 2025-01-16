@@ -4,12 +4,11 @@ module spi_controller(
     input [2:0] ADDRESS_CHOICE, // BUTTON 1,2,3,4
     input MISO, // DATA FROM SLAVE TO MASTER
 
-    output reg CS = 1, // CHIP SELECT
-    output reg SCLK = 0, // SLOW CLOCK FOR SPI PROTOCOL
-    output reg MOSI = 0, // DATA FROM MASTER TO SLAVE
+    output reg CS, // CHIP SELECT
+    output reg SCLK, // SLOW CLOCK FOR SPI PROTOCOL
+    output reg MOSI, // DATA FROM MASTER TO SLAVE
 
-    output reg [7:0] DATA_OUT = 0, // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
-    output reg DATA_VALID  = 0// TO COMMUNICATE TO 7 SEGMENT THAT THE DATA is READY TO BE DISPLAYED
+    output reg [7:0] DATA_OUT // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
 );
 
 ////////////////////// THE FIFO READ AND WRITE COMMANDS ARE NOT DEVELOPED YET ///////////////////////////
@@ -92,7 +91,6 @@ always@(posedge CLK)begin
                 MOSI <= 0;
                 MISO_DATA <= 0;
                 BIT_COUNTER <= 15;
-                DATA_VALID <= 0;
                 if(READY)begin
                     STATE <= SEND_DATA;
                 end
@@ -114,11 +112,9 @@ always@(posedge CLK)begin
         RECIEVE_DATA: // Recieving Data from MISO
             begin
                 if((SCLK == 1'b0) && (SLOW_CLOCK_COUNTER == SLOW_CLOCK_DIVIDE))begin // READ on POSEDGE
-                    DATA_VALID <= 0;
                     BIT_COUNTER <= BIT_COUNTER - 1;
                     MISO_DATA[BIT_COUNTER] <= MISO;
                     if(BIT_COUNTER == 0)begin
-                        DATA_VALID <= 1;
                         DATA_OUT <= MISO_DATA;
                         if(~READY)begin // If we no longer want to burst read, the device will go to idle
                             STATE <= IDLE;
