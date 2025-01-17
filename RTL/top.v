@@ -1,7 +1,7 @@
 module top(
+    input RESET,
     input CLK, // 125.000 MHz SYSTEM CLOCK
-    input [2:0] OPERATION, // SWITCH 1,2,3
-    input [2:0] ADDRESS_CHOICE, // BUTTON 1,2,3,4
+    input [3:0] OPERATION, // SWITCH 1,2,3,4
     input MISO, // DATA FROM SLAVE TO MASTER
 
     output CS, // CHIP SELECT
@@ -17,9 +17,9 @@ module top(
 wire [7:0] DATA_OUT_IN;
 
 spi_controller i1(
+    .RESET(RESET),
     .CLK(CLK),
     .OPERATION(OPERATION),
-    .ADDRESS_CHOICE(ADDRESS_CHOICE),
     .MISO(MISO),
     .CS(CS),
     .SCLK(SCLK),
@@ -28,6 +28,7 @@ spi_controller i1(
 );
 
 display i2(
+    .RESET(RESET),
     .CLK(CLK),
     .DATA_IN(DATA_OUT_IN),
     .SEGMENTS(SEGMENTS),
