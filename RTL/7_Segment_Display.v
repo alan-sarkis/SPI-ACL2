@@ -1,4 +1,5 @@
 module display(
+    input RESET,
     input CLK,
     input [7:0] DATA_IN,
     output reg [6:0] SEGMENTS,
@@ -19,11 +20,13 @@ localparam NUM_9 = 7'b1110011;
 
 
 /////// Counter to Account for Display Refresh Rate ///////
-integer COUNTER = 0;
+reg [21:0] COUNTER;
 localparam REFRESH_RATE = 2_500_000;
 
 always@(posedge CLK)begin
-    if(COUNTER == REFRESH_RATE)
+    if(RESET)
+        COUNTER <= 0;
+    else if(COUNTER == REFRESH_RATE)
         COUNTER <= 0;
     else
         COUNTER <= COUNTER + 1;
@@ -33,6 +36,8 @@ end
 reg [7:0] TEMP_DATA;
 
 always@(posedge CLK)begin
+    if(RESET)
+        TEMP_DATA <= 0;
     if(COUNTER == REFRESH_RATE)
         TEMP_DATA <= DATA_IN;
 end
@@ -43,7 +48,12 @@ wire [3:0] ones = TEMP_DATA % 10;
 
 /////// Assigning Values to Segment Display ////////
 always@(posedge CLK)begin
-    if(COUNTER == 0)begin // First Digit
+    if(RESET)begin
+        DIGIT_SELECT <= 0;
+        SEGMENTS <= NUM_0;
+    end
+    
+    else if(COUNTER == 0)begin // First Digit
         DIGIT_SELECT <= 0;
         if(TEMP_DATA > 99)begin
             SEGMENTS <= NUM_9;
