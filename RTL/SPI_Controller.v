@@ -147,7 +147,9 @@ always@(posedge CLK)begin
         BIT_COUNTER <= 0;
         STATE <= IDLE;
     end
-    else if(OPERATION[3])begin // Setting UP Accelerometer
+
+//////////// SETTING UP OF ACL2 //////////////////////
+    else if(OPERATION == SETUP_WRITE)begin
         case(STATE)
             IDLE:
                 begin
@@ -197,9 +199,11 @@ always@(posedge CLK)begin
             default: STATE <= IDLE;
         endcase
     end
+
+/////////// NORMAL OPERTAION OF ACL2 ///////
     else begin
         case(STATE)
-            IDLE: // RESET all COUNTERS and BUSSES to default conditions
+            IDLE:
                 begin
                     CS <= 1;
                     MOSI <= 0;
