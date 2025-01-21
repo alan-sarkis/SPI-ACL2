@@ -8,9 +8,9 @@ module spi_controller(
     output reg SCLK, // SLOW CLOCK FOR SPI PROTOCOL
     output reg MOSI, // DATA FROM MASTER TO SLAVE
 
-    output reg [7:0] DATA_OUT // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
+    output reg [7:0] DATA_OUT, // SERIAL DATA FROM MISO COMBINED INTO AN ARRAY
 
-    output reg DONE_SETUP;
+    output reg DONE_SETUP
 );
 
 //// Instructions and Addresses////

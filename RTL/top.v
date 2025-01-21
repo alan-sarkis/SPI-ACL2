@@ -9,9 +9,9 @@ module top(
     output MOSI, // DATA FROM MASTER TO SLAVE
 
     output [6:0] SEGMENTS,
-    output DIGIT_SELECT
+    output DIGIT_SELECT,
 
-    output DONE_SETUP;
+    output DONE_SETUP
 );
 
 wire [7:0] DATA_OUT_IN;
