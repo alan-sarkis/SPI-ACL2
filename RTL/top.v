@@ -8,10 +8,10 @@ module top(
     output SCLK, // SLOW CLOCK FOR SPI PROTOCOL
     output MOSI, // DATA FROM MASTER TO SLAVE
 
-
-
     output [6:0] SEGMENTS,
     output DIGIT_SELECT
+
+    output DONE_SETUP;
 );
 
 wire [7:0] DATA_OUT_IN;
@@ -24,7 +24,8 @@ spi_controller i1(
     .CS(CS),
     .SCLK(SCLK),
     .MOSI(MOSI),
-    .DATA_OUT(DATA_OUT_IN)
+    .DATA_OUT(DATA_OUT_IN),
+    .DONE_SETUP(DONE_SETUP)
 );
 
 display i2(
