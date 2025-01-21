@@ -38,12 +38,17 @@ reg [7:0] TEMP_DATA;
 always@(posedge CLK)begin
     if(RESET)
         TEMP_DATA <= 0;
-    if(COUNTER == REFRESH_RATE)
+    if(COUNTER == REFRESH_RATE - 100_000)
         TEMP_DATA <= DATA_IN;
 end
+
+///////// Remove TWOS Complement /////////
+wire [7:0] ABS_TEMP_DATA;
+assign ABS_TEMP_DATA = (TEMP_DATA[7] == 1'b1) ? (~TEMP_DATA + 1'b1) : TEMP_DATA;
+
 ///////// Convert to BCD ///////
-wire [3:0] tens = TEMP_DATA / 10;
-wire [3:0] ones = TEMP_DATA % 10;
+wire [3:0] tens = ABS_TEMP_DATA / 10;
+wire [3:0] ones = ABS_TEMP_DATA % 10;
 
 
 /////// Assigning Values to Segment Display ////////
@@ -55,7 +60,7 @@ always@(posedge CLK)begin
     
     else if(COUNTER == 0)begin // First Digit
         DIGIT_SELECT <= 0;
-        if(TEMP_DATA > 99)begin
+        if(ABS_TEMP_DATA > 99)begin
             SEGMENTS <= NUM_9;
         end
         
@@ -77,7 +82,7 @@ always@(posedge CLK)begin
 
     else if(COUNTER == REFRESH_RATE/2)begin // Second Digit
         DIGIT_SELECT <= 1;
-        if(TEMP_DATA > 99)begin
+        if(ABS_TEMP_DATA > 99)begin
             SEGMENTS <= NUM_9;
         end
         else begin
